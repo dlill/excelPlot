@@ -12,14 +12,21 @@
 #' @examples
 #' path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
 #' cropSpec <- cropSpec(0,1,0.2,0.9)
+#' epFiles(path, commit = "HEAD", pages = 1, cropSpec = cropSpec())
 epFiles <- function(path, commit = "HEAD", pages = 1, cropSpec = cropSpec()) {
   path <- normalizePath(path, mustWork = TRUE)
 
+  path                  = path
+  tmpPathCommit         = paste0(tools::file_path_sans_ext(gsub(normalizePath("~"), "/tmp", path)), "-commit-", commit, ".", tools::file_ext(path))
+  tmpPathCommitPage     = paste0(tools::file_path_sans_ext(tmpPathCommit), sprintf("-page-%02d.png", page))
+  tmpPathCommitPageCrop = paste0(tools::file_path_sans_ext(tmpPathCommitPage), sprintf("-crop-%2.2f-%2.2f-%2.2f-%2.2f.png", cropSpec$xmin, cropSpec$xmax, cropSpec$ymin, cropSpec$ymax))
+
   list(
     path                  = path,
-    tmpPathCommit         = gsub(normalizePath("~"), "/tmp", path),
-    tmpPathCommitPage     = paste0(tools::file_path_sans_ext(gsub(normalizePath("~"), "/tmp", path)), sprintf("-page-%02d.png", page)),
-    tmpPathCommitPageCrop = paste0(tools::file_path_sans_ext(gsub(normalizePath("~"), "/tmp", path)), sprintf("-page-%02d-crop-%2.2f-%2.2f-%2.2f-%2.2f.png", page, cropSpec$xmin, cropSpec$xmax, cropSpec$ymin, cropSpec$ymax))
+    tmpPathCommit         = tmpPathCommit,
+    tmpPathCommitPage     = tmpPathCommitPage,
+    tmpPathCommitPageCrop = tmpPathCommitPageCrop
+
   )
 
 }

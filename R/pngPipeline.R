@@ -42,22 +42,29 @@ pngPipelineCheckoutToTemp <- function(plotSpec) {
   }
 
   # Case 3: Fetch from commit
-  system(paste0("cd ", dirname(fileIn), " && git show ", plotSpec$commit, ":", basename(fileIn), " > ", fileOut))
+  system(paste0("cd ", dirname(fileIn), " && git show ", plotSpec$commit, ":./", basename(fileIn), " > ", fileOut))
 
   fileOut
 
 }
 
-outputFileIsNewer <- function(fileIn, fileOut) {
-  if (!file.exists(fileOut)) {
-    return(FALSE)
-  }
-  changeDateIn <- as.numeric(system(paste0("stat -c %Z ", files$path), intern = TRUE))
-  changeDateOut <- as.numeric(system(paste0("stat -c %Z ", files$tmpPathCommit), intern = TRUE))
-  changeDateOut > changeDateIn
-}
 
 pngPipelineExtractPage <- function(plotSpec) {
+
+  files <- do.call(epFiles, plotSpec)
+  fileIn = files$tmpPathCommit
+  fileOut = files$tmpPathCommitPage
+
+  # Case 1: Nothing to do
+  if (outputFileIsNewer(fileIn = fileIn, fileOut = fileOut)) {
+    return(fileOut)
+  }
+
+  # Case 2: extract page
+  # [ ] >>>> Continue here <<<<<<<<<<< ----
+  # [ ] >>>> Continue here <<<<<<<<<<< ----
+  # [ ] >>>> Continue here <<<<<<<<<<< ----
+  # [ ] >>>> Continue here <<<<<<<<<<< ----
 
 
 }
@@ -86,6 +93,15 @@ pngPipelineCrop <- function(plotSpec) {
 plotSpec <- function(path, commit = "HEAD", pages = allPages(path), cropSpec = cropSpec()) {
   fx <- formals()
   l <- lapply(setNames(nm = names(fx)), function(x) eval(parse(text = x)))
+}
+
+outputFileIsNewer <- function(fileIn, fileOut) {
+  if (!file.exists(fileOut)) {
+    return(FALSE)
+  }
+  changeDateIn <- as.numeric(system(paste0("stat -c %Z ", files$path), intern = TRUE))
+  changeDateOut <- as.numeric(system(paste0("stat -c %Z ", files$tmpPathCommit), intern = TRUE))
+  changeDateOut > changeDateIn
 }
 
 
