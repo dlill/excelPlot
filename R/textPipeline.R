@@ -2,11 +2,7 @@
 #' Title
 #'
 #' @param text
-#' @param size
-#' @param face
-#' @param rotation
-#' @param halign
-#' @param valign
+#' @param style
 #'
 #' @returns
 #' @export
@@ -14,14 +10,20 @@
 #' @examples
 textSpec <- function(text,
                      style
-                     # , size = 16, face = "bold", rotation = 0, halign = "left", valign = "center"
                      ) {
 
   verifyArg(text, expectedMode = "character", expectedLength = 1)
-  verifyArg(style, expectedMode = "numeric", expectedLength = 1)
-  # verifyArg(size, expectedMode = "numeric", expectedLength = 1)
-  # verifyArg(face, expectedMode = "character", expectedLength = 1)
-  # verifyArg(rotation, expectedMode = "numeric", expectedLength = 1)
+  verifyArg(style, expectedLength = 1)
+
+  if (is.character(style)) {
+    if (length(setdiff(style, names(styleList)))) {
+      stop("style \"", style, "\" is not available. Available options are:\n",
+      "\n", paste0("  ", seq_along(styleList), ": ", names(styleList), collapse = "\n")
+      )
+    }
+  } else if (!is.numeric(style)) {
+    stop("style must be either character or numeric. It is: ", mode(style))
+  }
 
   fx <- formals()
   l <- lapply(setNames(nm = names(fx)), function(x) eval(parse(text = x)))
@@ -37,6 +39,7 @@ textSpec <- function(text,
 #'
 #' @examples
 #' text <- "Iris Blue::2"
+#' text <- "Iris Blue::rot"
 #' parseTextSpec(text)
 parseTextSpec <- function(text) {
 
@@ -44,29 +47,10 @@ parseTextSpec <- function(text) {
   text <- text[[1]]
 
   content <- text[1]
-  style <- if (length(text) > 1) as.numeric(text[[2]]) else 1
-
-  # rotation <- grep("^rot(ation)?", text, value = TRUE)
-  # if (length(rotation)) {rotation <- as.numeric(gsub("rot(ation)? ", "", rotation))} else {rotation <- 0}
-  #
-  # size <- grep("^size", text, value = TRUE)
-  # if (length(size)) {size <- as.numeric(gsub("size ", "", size))} else {size <- 16}
-  #
-  # face <- grep("^face", text, value = TRUE)
-  # if (length(face)) {face <- gsub("face ", "", face)} else {face <- "bold"}
-  #
-  # halign <- grep("^halign", text, value = TRUE)
-  # if (length(halign)) {halign <- gsub("halign ", "", halign)} else {halign <- "left"}
-  #
-  # valign <- grep("^valign", text, value = TRUE)
-  # if (length(valign)) {valign <- gsub("valign ", "", valign)} else {valign <- "center"}
+  style <- if (length(text) > 1) {text[[2]]} else {1}
+  style <- if (!is.na(as.numeric(style))) {as.numeric(style)} else {style}
 
   textSpec(text = content,
-           # rotation = rotation,
-           # size = size,
-           # face = face,
-           # halign = halign,
-           # valign = valign,
            style = style)
 
 }

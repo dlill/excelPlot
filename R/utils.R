@@ -114,7 +114,7 @@ verifyArg <- function(x, allowNull = FALSE,
 
 
 
-#' Check if file can be overwritten und if add a datetime stamp
+#' Check if file can be overwritten and if no add a datetime stamp
 #'
 #' @param filename filename to be checked
 #'
@@ -141,7 +141,14 @@ updateLockedFilename <- function(filename){
 
 
 
+#' Title
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 onePageMacro <- function() {
+
   "Sub MakeOnePagePDF(inputFile As String, outputFile As String)
   Dim document As Object
   Dim sheets As Object

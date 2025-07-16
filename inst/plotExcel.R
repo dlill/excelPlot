@@ -19,13 +19,18 @@ try(setwd(dirname(rstudioapi::getSourceEditorContext()$path)))
 # Set up a table ----
 # -------------------------------------------------------------------------#
 list.files("inst/exampleData/", full.names = TRUE)
+
+styles <- paste0(seq_along(styleList), ": ", names(styleList), "::", seq_along(styleList))
+
 d0 <- data.table(tibble::tribble(
   ~desc, ~bam, ~asdlfkj,
-  "Iris Blue::3",  "exampleData//02-Iris-Brewer.pdf::crop x0,75 y0,80"     , "exampleData//02-Iris-Brewer.pdf"     ,
+  "Iris Blue::2",  "exampleData//02-Iris-Brewer.pdf::crop x0,75 y0,80"     , "exampleData//02-Iris-Brewer.pdf"     ,
   "Iris stuff::4",  "exampleData//04-IrisMulti.pdf::page 2"       , "exampleData//04-IrisMulti.pdf::page 1"
 ))
 
+d0 <- data.table(bla = c(styles, "exampleData//02-Iris-Brewer.pdf::crop x0,75 y0,80"))
 
+FLAGaddBorders <- TRUE
 # -------------------------------------------------------------------------#
 # Crunch ----
 # -------------------------------------------------------------------------#
@@ -36,7 +41,7 @@ d <- data.table::melt(d,id.vars = "ROWID", variable.name = "VARIABLE", variable.
 d[,`:=`(COLID = as.numeric(factor(VARIABLE, unique(VARIABLE))))]
 
 d <- rbindlist(list(
-  d[,unique(.SD),.SDcols = c("COLID", "VARIABLE")][,`:=`(ROWID = 1, VALUE = paste0(VARIABLE,"::3"))],
+  d[,unique(.SD),.SDcols = c("COLID", "VARIABLE")][,`:=`(ROWID = 1, VALUE = paste0(VARIABLE,"::2"))],
   d
 ), use.names = TRUE)
 d[,`:=`(ID = 1:.N)]
@@ -90,18 +95,6 @@ dheights[!is.finite(HEIGHTCM),`:=`(HEIGHTCM = 2)]
 # -------------------------------------------------------------------------#
 wb <- createWorkbook()
 
-styleList <- list(
-  bold          = createStyle(fontSize = 18, wrapText = TRUE, textDecoration = "bold", halign = NULL, valign = NULL),
-  boldRot       = createStyle(fontSize = 18, wrapText = TRUE, textDecoration = "bold", halign = NULL, valign = NULL, textRotation = 255),
-  boldCenter    = createStyle(fontSize = 18, wrapText = TRUE, textDecoration = "bold", halign = "center", valign = "center"),
-  boldCenterRot = createStyle(fontSize = 18, wrapText = TRUE, textDecoration = "bold", halign = "center", valign = "center", textRotation = 255),
-  neg  = createStyle(fontColour = rgb(155,0,0,maxColorValue = 255)  , fgFill = rgb(255,199,206,maxColorValue = 255), border = "TopBottomLeftRight", borderColour = rgb(230,230,230,maxColorValue = 255), borderStyle = "thin"),
-  pos  = createStyle(fontColour = rgb(0,93,0,maxColorValue = 255)   , fgFill = rgb(198,239,206,maxColorValue = 255), border = "TopBottomLeftRight", borderColour = rgb(230,230,230,maxColorValue = 255), borderStyle = "thin"),
-  neu  = createStyle(fontColour = rgb(152,73,29,maxColorValue = 255), fgFill = rgb(255,235,156,maxColorValue = 255), border = "TopBottomLeftRight", borderColour = rgb(230,230,230,maxColorValue = 255), borderStyle = "thin"),
-  bas  = createStyle(fontColour = rgb(90,90,90,maxColorValue = 255) , fgFill = rgb(250,250,250,maxColorValue = 255), border = "TopBottomLeftRight", borderColour = rgb(230,230,230,maxColorValue = 255), borderStyle = "thin", textDecoration = "Italic"),
-  wrap = createStyle(wrapText = TRUE)
-)
-
 sheetName <- "Plots"
 addWorksheet(wb = wb, sheetName = sheetName)
 
@@ -137,9 +130,13 @@ for (i in seq_len(nrow(d))) {
 }
 
 # Layout
+pageSetup(wb = wb, sheet = sheetName, fitToWidth = TRUE, fitToHeight = TRUE) # So pdf export on is done on a single page
 freezePane(   wb, sheet = sheetName, firstRow = TRUE, firstCol = TRUE)
 setColWidths( wb, sheet = sheetName, cols = dwidths$COLID, widths = dwidths$WIDTHCM * 5.3)
 setRowHeights(wb, sheet = sheetName, rows = dheights$ROWID, heights = dheights$HEIGHTCM / 2.54 * 72 * 1.05)
+
+if (FLAGaddBorders) addStyle(wb = wb, sheet = sheetName, style = openxlsx::createStyle(border = "TopBottomLeftRight"), rows = unique(d$ROWID), cols = unique(d$COLID), gridExpand = TRUE, stack = TRUE)
+
 
 # .. Export -----
 filename <- "plots.xlsx"
@@ -151,13 +148,9 @@ message("Excel sheet was saved at ", filename)
 invisible(filename)
 
 
-
-
 system(paste0('LD_LIBRARY_PATH="/usr/lib/libreoffice/program:/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH" && ',
-'export LD_LIBRARY_PATH && ', "bash -lic 'libreoffice --headless --convert-to pdf ",normalizePath(filename), " --outdir ", tempdir(), " ", normalizePath(filename), "'"), wait = TRUE)
+              'export LD_LIBRARY_PATH && ', "bash -lic 'libreoffice --headless --convert-to pdf ",normalizePath(filename), " --outdir ", tempdir(), " ", normalizePath(filename), "'"), wait = TRUE)
 system(paste0("evince ", file.path(tempdir(), paste0(tools::file_path_sans_ext(basename(filename)), ".pdf"))), wait = FALSE)
 
-#
-#
 
 # Exit ----
