@@ -1,21 +1,4 @@
 
-# #' Title
-# #'
-# #' @param plotSpec
-# #'
-# #' @return
-# #' @export
-# #'
-# #' @examples
-# applyPngPipelineAllpage <- function(plotSpec) {
-#   lapply(plotSpec$page, function(page) {
-#     plotSpecOnePage <- plotSpec
-#     plotSpecOnePage$page <- page
-#     applyPngPipelineOnePage(plotSpecOnePage)
-#   })
-# }
-
-
 #' Title
 #'
 #' @param plotSpec
