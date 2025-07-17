@@ -1,13 +1,13 @@
 
-#' Title
+#' Construct all temp plot file names from a plotSpec
 #'
-#' @param path
-#' @param commit
-#' @param page
-#' @param crop
+#' @inheritParams plotSpec
 #'
-#' @return
+#' @return List of paths to the respective files
 #' @export
+#' @md
+#' @family UI
+#' @importFrom tools file_path_sans_ext file_ext
 #'
 #' @examples
 #' path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
@@ -24,24 +24,9 @@ epFiles <- function(path, commit = "HEAD", page = 1, xmin = 0, xmax = 100, ymin 
     path                  = path,
     tmpPathCommit         = tmpPathCommit,
     tmpPathCommitPage     = tmpPathCommitPage,
-    tmpPathCommitPageCrop = tmpPathCommitPageCrop
-
-  )
-
+    tmpPathCommitPageCrop = tmpPathCommitPageCrop)
 }
 
-
-#' Get current commit hash
-#'
-#' @param path
-#'
-#' @return
-#' @export
-#'
-#' @examples
-getCommit <- function(path) {
-  substr(system(paste0("cd ", dirname(path), " && git log"), wait = FALSE, intern = TRUE)[1], 8,20)
-}
 
 
 

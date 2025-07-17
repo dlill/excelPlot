@@ -1,16 +1,17 @@
 
-#' Title
+#' Collect all text specification in a list
 #'
-#' @param text
-#' @param style
+#' @param text The text you want to insert in the cell
+#' @param style Numeric or character, specifying the index or the name of a text style. Execute [availableStyles()] for available styles.
 #'
-#' @returns
+#' @returns List of its input arguments
 #' @export
+#' @md
+#' @family UI
 #'
 #' @examples
-textSpec <- function(text,
-                     style
-                     ) {
+#' textSpec(text = "Text 1", style = "rotateUp")
+textSpec <- function(text, style) {
 
   verifyArg(text, expectedMode = "character", expectedLength = 1)
   verifyArg(style, expectedLength = 1)
@@ -30,16 +31,18 @@ textSpec <- function(text,
   l
 }
 
-#' Title
+#' Parse a decorated text into a textSpec
 #'
-#' @param text
+#' @param text Character with format "arbitrary text::style"
 #'
-#' @returns
+#' @returns A [textSpec()]
 #' @export
+#' @md
+#' @family UI
 #'
 #' @examples
 #' text <- "Iris Blue::2"
-#' text <- "Iris Blue::rot"
+#' text <- "Iris Blue::rotateUp"
 #' parseTextSpec(text)
 parseTextSpec <- function(text) {
 

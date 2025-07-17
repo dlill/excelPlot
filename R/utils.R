@@ -12,9 +12,7 @@
 #' @param expectedTestFun A function for which the call `expectedTestFun(x)` returns TRUE (test is passed) or FALSE (test is failed)
 #'
 #' @return Called for side-effect. If all tests pass, nothing happens. If errors occur, they are collected in informative error messages.
-#' @export
 #' @md
-#' @family Other functions
 #'
 #' @examples
 #' \dontrun{
@@ -120,8 +118,8 @@ verifyArg <- function(x, allowNull = FALSE,
 #'
 #' @returns `filename` if file can be overwritten, and datetime-stamped file if file is locked.
 #' @export
-#'
-#' @examples
+#' @md
+#' @importFrom tools file_path_sans_ext file_ext
 updateLockedFilename <- function(filename){
   curwd <- getwd()
   on.exit(setwd(curwd))
@@ -141,12 +139,13 @@ updateLockedFilename <- function(filename){
 
 
 
-#' Title
+#' Print the libre office macro used to put everything on one page with libreoffice headless conversion to pdf
 #'
-#' @returns
+#' This function is more for documentation purposes, until I find a better way to install it.
+#'
+#' @returns Prints the macro
 #' @export
-#'
-#' @examples
+#' @md
 onePageMacro <- function() {
 
   "Sub MakeOnePagePDF(inputFile As String, outputFile As String)

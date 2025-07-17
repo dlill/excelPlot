@@ -2,15 +2,13 @@
 # Excel export pipeline ----
 # -------------------------------------------------------------------------#
 
-#' Title
+#' Parse the data.table which specifies the texts and plots to be exported
 #'
-#' @param d
-#' @param headerRowStyle
+#' @inheritParams plotExcel
 #'
-#' @returns
-#' @export
-#'
-#' @examples
+#' @returns Augmented `d` with parsed information
+#' @md
+#' @importFrom data.table copy melt rbindlist
 parseTable <- function(d, headerRowStyle) {
 
   d <- data.table::copy(d)
@@ -41,17 +39,16 @@ parseTable <- function(d, headerRowStyle) {
   d
 }
 
-#' Title
+#' Given all parsed information, construct the Excel workbook
 #'
-#' @param dParsed
-#' @param dwidths
-#' @param dheights
-#' @param FLAGaddBorders
+#' @param dParsed Parsed d, data.table
+#' @param dwidths data.table with column width information
+#' @param dheights data.table with row height information
+#' @param FLAGaddBorders Add borders around all cells? Default: FALSE
 #'
-#' @returns
-#' @export
-#'
-#' @examples
+#' @returns An openxlsx workbook `wb`
+#' @md
+#' @importFrom openxlsx createWorkbook addWorksheet insertImage writeData addStyle pageSetup freezePane setColWidths setRowHeights createStyle
 populateExcel <- function(dParsed, dwidths, dheights, FLAGaddBorders) {
   wb <- openxlsx::createWorkbook()
 
@@ -103,18 +100,34 @@ populateExcel <- function(dParsed, dwidths, dheights, FLAGaddBorders) {
   wb
 }
 
-#' Title
+#' Export plots into an Excel table.
 #'
-#' @param d
-#' @param filename
-#' @param headerRowStyle
-#' @param FLAGaddBorders
-#' @param FLAGpdf
+#' @param d data.table("plot.pdf::spec...", "text::style", ...)
+#' @param filename File path to export excel file to.
+#' @param headerRowStyle Default: "center". Style used for header row.
+#' @param FLAGaddBorders Default: FALSE. Add borders around all cells?
+#' @param FLAGpdf Default: FALSE. Export Excel as pdf and open in pdf viewer? Useful for quick drafting.
 #'
-#' @returns
+#' @returns `filename`, but is called for its side effect.
 #' @export
+#' @md
+#' @family UI
+#' @importFrom openxlsx saveWorkbook
+#' @importFrom tools file_path_sans_ext
 #'
 #' @examples
+#' \dontrun{
+#' d <- data.table(tibble::tribble(
+#'   ~Description, ~`Plots 1`, ~`Plots 2`,
+#'   "Crop::3",  paste0(system.file("exampleData/01-Iris.pdf", package = "excelPlot"), "::xmax 85")     , paste0(system.file("exampleData/02-Iris-Brewer.pdf", package = "excelPlot"), "::xmax 85")     ,
+#'   "Text rotated up::4",  paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 2::xmax 85")       , paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 1")
+#' ))
+#' filename <- "~/.excelPlot/example.xlsx"
+#' plotExcel(d, filename = filename, headerRowStyle = "center", FLAGaddBorders = FALSE, FLAGpdf = FALSE, textColWidth = 5)
+#' plotExcel(d, filename = filename, headerRowStyle = "center", FLAGaddBorders = FALSE, FLAGpdf = TRUE, textColWidth = 5)
+#' # After inspection, remove the file
+#' unlink(filename)
+#' }
 plotExcel <- function(d, filename, headerRowStyle = "center", FLAGaddBorders = FALSE, FLAGpdf = FALSE, textColWidth = 5) {
 
   # -------------------------------------------------------------------------#
@@ -177,15 +190,17 @@ styleList <- list(
   left       = openxlsx::createStyle(fontSize = 18, wrapText = TRUE, textDecoration = "bold", halign = NULL, valign = NULL),
   center     = openxlsx::createStyle(fontSize = 18, wrapText = TRUE, textDecoration = "bold", halign = "center"),
   rotateUp   = openxlsx::createStyle(fontSize = 18, wrapText = TRUE, textDecoration = "bold", halign = "right", valign = "center", textRotation = 90),
-  rotateDown = openxlsx::createStyle(fontSize = 18, wrapText = TRUE, textDecoration = "bold", halign = "left" , valign = "center", textRotation = -90))
+  rotateDown = openxlsx::createStyle(fontSize = 18, wrapText = TRUE, textDecoration = "bold", halign = "left" , valign = "center", textRotation = -90),
+  plain      = openxlsx::createStyle()
+  )
 
 
 #' Print available styles
 #'
-#' @returns
+#' @returns Prints available styles
 #' @export
 #' @md
-#' @family
+#' @family UI
 #'
 #' @examples
 #' availableStyles()

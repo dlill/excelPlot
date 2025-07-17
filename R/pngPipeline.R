@@ -162,7 +162,7 @@ pngPipelineCrop <- function(plotSpec) {
 #'
 #' @examples
 #' path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
-#' plotSpec <- plotSpec(path, commit = getCommit(path), page = allpage(path), xmin = 10, ymax = 90)
+#' plotSpec <- plotSpec(path, commit = "asdf234", page = 1, xmax = 85)
 plotSpec <- function(path, commit = "HEAD", page = 1, xmin = 0, xmax = 100, ymin = 0, ymax = 100, resolution = 100) {
 
   verifyArg(path, expectedClass = "character", expectedLength = 1)
@@ -202,7 +202,6 @@ plotSpec <- function(path, commit = "HEAD", page = 1, xmin = 0, xmax = 100, ymin
 #' parsePlotSpec(text)
 parsePlotSpec <- function(text) {
   verifyArg(text, expectedClass = "character", expectedLength = 1)
-  path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
 
   text <- paste0("path ", text) # To remove the special case that path is not explicitly called "path path/to/file" in the string.
   text <- strsplit(x = text, split = "::")
@@ -222,7 +221,7 @@ parsePlotSpec <- function(text) {
   # Try converting args to numeric, and if it works use the numeric version
   plotSpecArgs <- lapply(plotSpecArgs,  function(x) {
     xNumeric <- suppressWarnings(as.numeric(x))
-    x <- if (!is.na(xNumeric)) xNumeric
+    if (!is.na(xNumeric)) {x <- xNumeric}
     x
   })
 
@@ -237,7 +236,7 @@ parsePlotSpec <- function(text) {
 #' @param commit Commit hash
 #'
 #' @return TRUE: A sound input output relationship is guaranteed even if we don't redo the step
-#' @export
+#' @md
 idempotencyNoActionRequired <- function(fileIn, fileOut, commit) {
 
   if (!file.exists(fileOut)) {
@@ -258,25 +257,27 @@ idempotencyNoActionRequired <- function(fileIn, fileOut, commit) {
 
 
 
-
-#' Title
-#'
-#' @param path
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
-#' path <- system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot")
-#' allpage(path)
-allpage <- function(path) {
-  if (tools::file_ext(path) == "pdf") {
-    1:pdftools::pdf_length(path)
-  } else if (tools::file_ext(path) == "png") {
-    1
-  } else {
-    stop("Unsupported file type (has to be pdf or png): ", tools::file_ext(path))
-  }
-}
+# #' List all pages of a plot file
+# #'
+# #' @param path Path to plot file
+# #'
+# #' @return Vector with 1:npage
+# #' @export
+# #' @md
+# #' @importFrom tools file_ext
+# #' @importFrom pdftools pdf_length
+# #'
+# #' @examples
+# #' path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
+# #' path <- system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot")
+# #' allpages(path)
+# all_pages <- function(path) {
+#   if (tools::file_ext(path) == "pdf") {
+#     1:pdftools::pdf_length(path)
+#   } else if (tools::file_ext(path) == "png") {
+#     1
+#   } else {
+#     stop("Unsupported file type (has to be pdf or png): ", tools::file_ext(path))
+#   }
+# }
 
