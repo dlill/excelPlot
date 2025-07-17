@@ -107,11 +107,13 @@ populateExcel <- function(dParsed, dwidths, dheights, FLAGaddBorders) {
 #' @param headerRowStyle Default: "center". Style used for header row.
 #' @param FLAGaddBorders Default: FALSE. Add borders around all cells?
 #' @param FLAGpdf Default: FALSE. Export Excel as pdf and open in pdf viewer? Useful for quick drafting.
+#' @param textColWidth Default: 5. Width of pure text columns, in cm.
 #'
 #' @returns `filename`, but is called for its side effect.
 #' @export
 #' @md
 #' @family UI
+#' @importFrom data.table as.data.table
 #' @importFrom openxlsx saveWorkbook
 #' @importFrom tools file_path_sans_ext
 #'
@@ -119,12 +121,19 @@ populateExcel <- function(dParsed, dwidths, dheights, FLAGaddBorders) {
 #' \dontrun{
 #' d <- data.table(tibble::tribble(
 #'   ~Description, ~`Plots 1`, ~`Plots 2`,
-#'   "Crop::3",  paste0(system.file("exampleData/01-Iris.pdf", package = "excelPlot"), "::xmax 85")     , paste0(system.file("exampleData/02-Iris-Brewer.pdf", package = "excelPlot"), "::xmax 85")     ,
-#'   "Text rotated up::4",  paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 2::xmax 85")       , paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 1")
+#'   "Crop::3",
+#'   paste0(system.file("exampleData/01-Iris.pdf", package = "excelPlot"), "::xmax 85"),
+#'   paste0(system.file("exampleData/02-Iris-Brewer.pdf", package = "excelPlot"), "::xmin 30"),
+#'   "Text rotated up::4",
+#'   paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 2"),
+#'   paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 1")
 #' ))
 #' filename <- "~/.excelPlot/example.xlsx"
-#' plotExcel(d, filename = filename, headerRowStyle = "center", FLAGaddBorders = FALSE, FLAGpdf = FALSE, textColWidth = 5)
-#' plotExcel(d, filename = filename, headerRowStyle = "center", FLAGaddBorders = FALSE, FLAGpdf = TRUE, textColWidth = 5)
+#' plotExcel(d, filename = filename, headerRowStyle = "center",
+#'   FLAGaddBorders = FALSE, FLAGpdf = FALSE, textColWidth = 5)
+#' # Export to pdf
+#' plotExcel(d, filename = filename, headerRowStyle = "center",
+#'   FLAGaddBorders = FALSE, FLAGpdf = TRUE, textColWidth = 5)
 #' # After inspection, remove the file
 #' unlink(filename)
 #' }
@@ -143,7 +152,7 @@ plotExcel <- function(d, filename, headerRowStyle = "center", FLAGaddBorders = F
 
   # Get width and height in cm.
   # It is a weird bug of gs that it does not include the dpi in the metadata, and somehow imagemagick can't overwrite the metadata...
-  dParsed[ISPLOT == TRUE,c("WIDTHCM", "HEIGHTCM"):=(as.data.table(t(sapply(seq_along(FILE), function(i) {
+  dParsed[ISPLOT == TRUE,c("WIDTHCM", "HEIGHTCM"):=(data.table::as.data.table(t(sapply(seq_along(FILE), function(i) {
     pxInfo <- system(paste0('identify -format "%w\n%h" ', FILE[[i]]), intern = TRUE) # x pixels, y pixels
     pxInfo <- as.numeric(pxInfo)
     pxInfo / SPEC[[i]]$resolution * 2.54
@@ -166,7 +175,7 @@ plotExcel <- function(d, filename, headerRowStyle = "center", FLAGaddBorders = F
   # Export ----
   # -------------------------------------------------------------------------#
   if (!dir.exists(dirname(filename))) {dir.create(dirname(filename), showWarnings = FALSE, recursive = TRUE)}
-  filename <- updateLockedFilename(filename)
+  filename <- resolveLockedFilePath(filename)
   t0 <- Sys.time()
   openxlsx::saveWorkbook(wb = wb, file = filename, overwrite = TRUE)
   message("Excel sheet was saved at ", filename, " (", signif(Sys.time() - t0, 2), " s)")

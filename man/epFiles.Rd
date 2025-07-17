@@ -23,6 +23,8 @@ epFiles(
 \item{page}{Default 1, page numer to extract from the pdf}
 
 \item{xmin, xmax, ymin, ymax}{Crop the image from xmin to xmax and ymin to ymax. Allowed values: 0-100, units in percent.}
+
+\item{...}{Sink for unused}
 }
 \value{
 List of paths to the respective files

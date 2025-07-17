@@ -136,7 +136,7 @@ pngPipelineCrop <- function(plotSpec) {
   )
 
   hasFailed <- system(cmd)
-  if(hasFailed != 0) {warning("Cropping failed for ", plotSpec$path, ", page", page)}
+  if(hasFailed != 0) {warning("Cropping failed for ", plotSpec$path, ", page", plotSpec$page)}
   fileOut
 
 }
@@ -159,6 +159,7 @@ pngPipelineCrop <- function(plotSpec) {
 #' @md
 #' @family UI
 #' @importFrom data.table between
+#' @importFrom stats setNames
 #'
 #' @examples
 #' path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
@@ -183,7 +184,7 @@ plotSpec <- function(path, commit = "HEAD", page = 1, xmin = 0, xmax = 100, ymin
   if (ymin >= ymax) stop("ymin >= ymax")
 
   fx <- formals()
-  l <- lapply(setNames(nm = names(fx)), function(x) eval(parse(text = x)))
+  l <- lapply(stats::setNames(nm = names(fx)), function(x) eval(parse(text = x)))
   l
 }
 
@@ -195,6 +196,7 @@ plotSpec <- function(path, commit = "HEAD", page = 1, xmin = 0, xmax = 100, ymin
 #' @export
 #' @md
 #' @family UI
+#' @importFrom stats setNames
 #'
 #' @examples
 #' path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
@@ -210,7 +212,7 @@ parsePlotSpec <- function(text) {
   idxText <- numeric() # For useful error messages down below
   # Loop over all argument names
   plotSpecArgNames <- names(formals(plotSpec))
-  plotSpecArgs <- lapply(setNames(nm = plotSpecArgNames), function(nm) {
+  plotSpecArgs <- lapply(stats::setNames(nm = plotSpecArgNames), function(nm) {
     idxText <<- c(idxText, grep(paste0("^", nm), text))
     x <- grep(paste0("^", nm), text, value = TRUE)
     x <- if (length(x)) {x <- gsub(paste0(nm, " "), "", x)} else {NULL}

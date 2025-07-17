@@ -2,6 +2,7 @@
 #' Construct all temp plot file names from a plotSpec
 #'
 #' @inheritParams plotSpec
+#' @param ... Sink for unused
 #'
 #' @return List of paths to the respective files
 #' @export

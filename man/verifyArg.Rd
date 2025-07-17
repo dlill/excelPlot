@@ -42,7 +42,8 @@ Verify that input arguments meet certain conditions
 \dontrun{
 
 # Intended use case: Within a function
-f <- function(myFancyArgument) {verifyArg(myFancyArgument, expectedMode = "character", expectedLength = 2)}
+f <- function(myFancyArgument) {verifyArg(myFancyArgument,
+  expectedMode = "character", expectedLength = 2)}
 f(c(2)) # Two errors
 f(c(2,3)) # One error
 f(as.character(c(2))) # One error

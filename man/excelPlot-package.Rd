@@ -4,8 +4,12 @@
 \name{excelPlot-package}
 \alias{excelPlot}
 \alias{excelPlot-package}
-\title{excelPlot: What the Package Does (Title Case)}
+\title{excelPlot: Export pdf or png Files Into Excel}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+Arrange plots from pdf or png files into an Excel file. Allows for getting specific versions of the plots from git, extracting pages from a multipage pdf and cropping with a simple markup syntax. Text cells can be formatted using pre-specified styles using a simple markup syntax. To learn more, start with the example for `excelPlot()`.
+}
+\author{
+\strong{Maintainer}: Daniel Lill \email{dlill.unifreiburg@gmail.com}
+
 }
 \keyword{internal}

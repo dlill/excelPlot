@@ -1,19 +1,26 @@
 Package: excelPlot
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Export pdf or png Files Into Excel
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: GPL (>= 3)
+Authors@R: 
+    person("Daniel", "Lill", , "dlill.unifreiburg@gmail.com", role = c("cre"))
+Description: Arrange plots from pdf or png files into an Excel file. 
+    Allows for getting specific versions of the plots from git, extracting pages
+    from a multipage pdf and cropping with a simple markup syntax.
+    Text cells can be formatted using pre-specified styles using a simple markup
+    syntax.
+    To learn more, start with the example for `excelPlot()`.
+License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 Imports: 
     openxlsx,
     data.table,
-    tools
+    tools,
+    stats
 Suggests: 
+    git2r,
+    ggplot2,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

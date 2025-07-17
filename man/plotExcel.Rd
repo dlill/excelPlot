@@ -23,6 +23,8 @@ plotExcel(
 \item{FLAGaddBorders}{Default: FALSE. Add borders around all cells?}
 
 \item{FLAGpdf}{Default: FALSE. Export Excel as pdf and open in pdf viewer? Useful for quick drafting.}
+
+\item{textColWidth}{Default: 5. Width of pure text columns, in cm.}
 }
 \value{
 \code{filename}, but is called for its side effect.
@@ -34,12 +36,19 @@ Export plots into an Excel table.
 \dontrun{
 d <- data.table(tibble::tribble(
   ~Description, ~`Plots 1`, ~`Plots 2`,
-  "Crop::3",  paste0(system.file("exampleData/01-Iris.pdf", package = "excelPlot"), "::xmax 85")     , paste0(system.file("exampleData/02-Iris-Brewer.pdf", package = "excelPlot"), "::xmax 85")     ,
-  "Text rotated up::4",  paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 2::xmax 85")       , paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 1")
+  "Crop::3",
+  paste0(system.file("exampleData/01-Iris.pdf", package = "excelPlot"), "::xmax 85"),
+  paste0(system.file("exampleData/02-Iris-Brewer.pdf", package = "excelPlot"), "::xmin 30"),
+  "Text rotated up::4",
+  paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 2"),
+  paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 1")
 ))
 filename <- "~/.excelPlot/example.xlsx"
-plotExcel(d, filename = filename, headerRowStyle = "center", FLAGaddBorders = FALSE, FLAGpdf = FALSE, textColWidth = 5)
-plotExcel(d, filename = filename, headerRowStyle = "center", FLAGaddBorders = FALSE, FLAGpdf = TRUE, textColWidth = 5)
+plotExcel(d, filename = filename, headerRowStyle = "center",
+  FLAGaddBorders = FALSE, FLAGpdf = FALSE, textColWidth = 5)
+# Export to pdf
+plotExcel(d, filename = filename, headerRowStyle = "center",
+  FLAGaddBorders = FALSE, FLAGpdf = TRUE, textColWidth = 5)
 # After inspection, remove the file
 unlink(filename)
 }

@@ -8,6 +8,7 @@
 #' @export
 #' @md
 #' @family UI
+#' @importFrom stats setNames
 #'
 #' @examples
 #' textSpec(text = "Text 1", style = "rotateUp")
@@ -27,7 +28,7 @@ textSpec <- function(text, style) {
   }
 
   fx <- formals()
-  l <- lapply(setNames(nm = names(fx)), function(x) eval(parse(text = x)))
+  l <- lapply(stats::setNames(nm = names(fx)), function(x) eval(parse(text = x)))
   l
 }
 

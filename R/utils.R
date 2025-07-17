@@ -18,7 +18,8 @@
 #' \dontrun{
 #'
 #' # Intended use case: Within a function
-#' f <- function(myFancyArgument) {verifyArg(myFancyArgument, expectedMode = "character", expectedLength = 2)}
+#' f <- function(myFancyArgument) {verifyArg(myFancyArgument,
+#'   expectedMode = "character", expectedLength = 2)}
 #' f(c(2)) # Two errors
 #' f(c(2,3)) # One error
 #' f(as.character(c(2))) # One error
@@ -110,32 +111,50 @@ verifyArg <- function(x, allowNull = FALSE,
 }
 
 
-
-
-#' Check if file can be overwritten and if no add a datetime stamp
+#' Check if file is writable; if not, append a datetime stamp
 #'
-#' @param filename filename to be checked
+#' @param path File path to check
 #'
-#' @returns `filename` if file can be overwritten, and datetime-stamped file if file is locked.
+#' @returns Original `path` if writable; otherwise, a datetime-stamped path
 #' @export
 #' @md
 #' @importFrom tools file_path_sans_ext file_ext
-updateLockedFilename <- function(filename){
-  curwd <- getwd()
-  on.exit(setwd(curwd))
-  td <- dirname(filename)
-  setwd(td)
+resolveLockedFilePath <- function(path) {
+  original_dir <- getwd()
+  on.exit(setwd(original_dir))
 
-  fl <- basename(filename)
-  fltmp <- paste0(tools::file_path_sans_ext(fl), format(Sys.time(), "__%Y-%m-%d_%H%M"),  ".", tools::file_ext(fl))
-  FLAGexportToTemp <- file.exists(fl) && tryCatch({file.rename(fl, fltmp);file.rename(fltmp, fl);FALSE}, warning = function(e) TRUE)
-  if (FLAGexportToTemp) {
-    message("File '", fl, "' is locked, probably because it is opened on Windows.\n --> Table will be exported as: '", fltmp, "'")
-    file.copy(fl, fltmp,overwrite = TRUE)
-    fl <- fltmp
+  target_dir <- dirname(path)
+  setwd(target_dir)
+
+  file_name <- basename(path)
+  time_suffix <- format(Sys.time(), "__%Y-%m-%d_%H%M")
+  stamped_name <- paste0(
+    tools::file_path_sans_ext(file_name),
+    time_suffix,
+    ".",
+    tools::file_ext(file_name)
+  )
+
+  is_locked <- file.exists(file_name) && tryCatch({
+    file.rename(file_name, stamped_name)
+    file.rename(stamped_name, file_name)
+    FALSE
+  }, warning = function(w) TRUE)
+
+  if (is_locked) {
+    message(
+      "File '", file_name, "' appears to be locked (possibly open in another program).\n",
+      "--> Output will be saved as: '", stamped_name, "'"
+    )
+    file.copy(file_name, stamped_name, overwrite = TRUE)
+    file_name <- stamped_name
   }
-  file.path(td, fl)
+
+  file.path(target_dir, file_name)
 }
+
+
+
 
 
 
