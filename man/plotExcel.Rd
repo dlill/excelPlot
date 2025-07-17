@@ -38,7 +38,7 @@ d <- data.table(tibble::tribble(
   ~Description, ~`Plots 1`, ~`Plots 2`,
   "Crop::3",
   paste0(system.file("exampleData/01-Iris.pdf", package = "excelPlot"), "::xmax 85"),
-  paste0(system.file("exampleData/02-Iris-Brewer.pdf", package = "excelPlot"), "::xmin 30"),
+  paste0(system.file("exampleData/02-Iris-Brewer.pdf", package = "excelPlot")),
   "Text rotated up::4",
   paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 2"),
   paste0(system.file("exampleData/04-IrisMulti.pdf", package = "excelPlot"), "::page 1")
