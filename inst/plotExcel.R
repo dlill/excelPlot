@@ -31,9 +31,9 @@ headerRowStyle <- "center"
 filename <- "plots.xlsx"
 
 # [ ] >>>> Continue here <<<<<<<<<<< ----
-# [ ] turn "crop x0,100 y 0,100" into "xmin 0::xmax 100" etc
 # [ ] Add pdf export as option, e.g. FLAGpdf
 # [ ] Add diff option
+# [ ] Add full example where a git folder is initiated and diffs are made.
 
 d <- data.table::copy(d0)
 

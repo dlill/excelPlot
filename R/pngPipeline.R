@@ -1,12 +1,16 @@
 
-#' Title
+#' Apply the plot preprocessing pipeline
 #'
-#' @param plotSpec
+#' Currently, the pipeline has the following steps
 #'
-#' @return
-#' @export
+#' * Check out from git
+#' * Extract page from pdf as png
+#' * Crop png to specified part
 #'
-#' @examples
+#' @param plotSpec A [plotSpec()]
+#'
+#' @return file.path to checked out, extracted and cropped png
+#' @md
 applyPngPipelineOnePage <- function(plotSpec) {
   t0 <- Sys.time()
   verifyArg(plotSpec$page, expectedLength = 1)
@@ -22,14 +26,12 @@ applyPngPipelineOnePage <- function(plotSpec) {
 
 
 
-#' Title
+#' Check out a file, potentially from git to a temporary file.
 #'
-#' @param plotSpec
+#' @param plotSpec A [plotSpec()]
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return file.path to checked out file. The file name is /tmp/$ABSOLUTEPATH.
+#' @md
 pngPipelineCheckoutToTemp <- function(plotSpec) {
   files <- do.call(epFiles, plotSpec)
   fileIn = files$path
@@ -56,14 +58,13 @@ pngPipelineCheckoutToTemp <- function(plotSpec) {
 }
 
 
-#' Title
+#' Apply the extraction step of the plot preprocessing pipeline
 #'
-#' @param plotSpec
+#' @param plotSpec A [plotSpec()]
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return file.path to extracted page as png
+#' @md
+#' @importFrom tools file_ext
 pngPipelineExtractPage <- function(plotSpec) {
 
   files <- do.call(epFiles, plotSpec)
@@ -103,14 +104,12 @@ pngPipelineExtractPage <- function(plotSpec) {
   fileOut
 }
 
-#' Title
+#' Apply the cropping step of the plot preprocessing pipeline
 #'
-#' @param plotSpec
+#' @param plotSpec A [plotSpec()]
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return file.path to cropped png
+#' @md
 pngPipelineCrop <- function(plotSpec) {
   files <- do.call(epFiles, plotSpec)
   fileIn = files$tmpPathCommitPage
@@ -145,19 +144,21 @@ pngPipelineCrop <- function(plotSpec) {
 
 
 
-#' Title
+#' Collect all options for plot preprocessing in a list
 #'
-#' @param path
-#' @param commit
-#' @param page
-#' @param xmin
-#' @param xmax
-#' @param ymin
-#' @param ymax
-#' @param resolution In dpi
+#' This function also does error checking.
 #'
-#' @return
+#' @param path Path to plot file (pdf or png)
+#' @param commit Default: HEAD, else a commit hash
+#' @param page Default 1, page numer to extract from the pdf
+#' @param xmin,xmax,ymin,ymax Crop the image from xmin to xmax and ymin to ymax. Allowed values: 0-100, units in percent.
+#' @param resolution Resolution of the extracted png image, in dpi.
+#'
+#' @return List of the input arguments
 #' @export
+#' @md
+#' @family UI
+#' @importFrom data.table between
 #'
 #' @examples
 #' path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
@@ -186,72 +187,73 @@ plotSpec <- function(path, commit = "HEAD", page = 1, xmin = 0, xmax = 100, ymin
   l
 }
 
-#' Title
+#' Parse a decorated string into a plotSpec
 #'
-#' @param text
+#' @param text Text which follows the format "path/to/file::arg1 value::...", where arg is an argument of [plotSpec()], e.g. "commit asdf234"
 #'
-#' @return
+#' @return A [plotSpec()]
 #' @export
+#' @md
+#' @family UI
 #'
 #' @examples
 #' path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
-#' text <- paste0(path, "::commit HEAD::page 20::crop x0,50 y10,80")
-#' parsePlotSpec(text)
-#' text <- paste0(path, "::crop x0,50 y10,80")
+#' text <- paste0(path, "::commit HEAD::page 20::xmax 50::ymin 20")
 #' parsePlotSpec(text)
 parsePlotSpec <- function(text) {
+  verifyArg(text, expectedClass = "character", expectedLength = 1)
+  path <- system.file("exampleData/01-Iris.pdf", package = "excelPlot")
+
+  text <- paste0("path ", text) # To remove the special case that path is not explicitly called "path path/to/file" in the string.
   text <- strsplit(x = text, split = "::")
   text <- text[[1]]
 
-  path <- text[1]
+  idxText <- numeric() # For useful error messages down below
+  # Loop over all argument names
+  plotSpecArgNames <- names(formals(plotSpec))
+  plotSpecArgs <- lapply(setNames(nm = plotSpecArgNames), function(nm) {
+    idxText <<- c(idxText, grep(paste0("^", nm), text))
+    x <- grep(paste0("^", nm), text, value = TRUE)
+    x <- if (length(x)) {x <- gsub(paste0(nm, " "), "", x)} else {NULL}
+    x
+  })
+  # Remove the ones which were not found
+  plotSpecArgs <- plotSpecArgs[sapply(plotSpecArgs, function(x) !is.null(x))]
+  # Try converting args to numeric, and if it works use the numeric version
+  plotSpecArgs <- lapply(plotSpecArgs,  function(x) {
+    xNumeric <- suppressWarnings(as.numeric(x))
+    x <- if (!is.na(xNumeric)) xNumeric
+    x
+  })
 
-  commit <- grep("^commit", text, value = TRUE)
-  if (length(commit)) {commit <- gsub("commit ", "", commit)} else {commit <- "HEAD"}
-
-  page <- grep("^page", text, value = TRUE)
-  if (length(page)) {page <- as.numeric(gsub("page ", "", page))} else {page <- 1}
-
-  cropSpec <- grep("^crop", text, value = TRUE)
-  if (length(cropSpec)) {
-    xmin <- as.numeric(gsub("crop x(\\d+),(\\d+) y(\\d+),(\\d+)", "\\1", cropSpec))
-    xmax <- as.numeric(gsub("crop x(\\d+),(\\d+) y(\\d+),(\\d+)", "\\2", cropSpec))
-    ymin <- as.numeric(gsub("crop x(\\d+),(\\d+) y(\\d+),(\\d+)", "\\3", cropSpec))
-    ymax <- as.numeric(gsub("crop x(\\d+),(\\d+) y(\\d+),(\\d+)", "\\4", cropSpec))
-  } else {
-    xmin <- 0
-    xmax <- 100
-    ymin <- 0
-    ymax <- 100
-  }
-
-  plotSpec(path = path,
-           commit = commit,
-           page = page,
-           xmin = xmin,
-           xmax = xmax,
-           ymin = ymin,
-           ymax = ymax
-  )
-
+  plotSpec <- do.call(plotSpec, plotSpecArgs)
+  plotSpec
 }
 
-#' Title
+#' Check if anything needs to be done on a plot file
 #'
-#' @param fileIn
-#' @param fileOut
+#' @param fileIn Input file of the function where this function is called.
+#' @param fileOut Output file of the function where this function is called.
+#' @param commit Commit hash
 #'
-#' @return
+#' @return TRUE: A sound input output relationship is guaranteed even if we don't redo the step
 #' @export
-#'
-#' @examples
 idempotencyNoActionRequired <- function(fileIn, fileOut, commit) {
-  # If an existing output file is older than the input file, or we retrieved it from a commit, we want to do nothing,
-  file.exists(fileOut) && (commit == "HEAD" || {
-    # Wrap this guy into an expression, so we really only try to access fileOut when fileOut exists
-    changeDateIn <- as.numeric(system(paste0("stat -c %Z ", fileIn), intern = TRUE))
-    changeDateOut <- as.numeric(system(paste0("stat -c %Z ", fileOut), intern = TRUE))
-    fileOutIsOlderThanFileIn <- changeDateOut < changeDateIn
-    fileOutIsOlderThanFileIn})
+
+  if (!file.exists(fileOut)) {
+    # Trivial case: File does not exist, we need to execute
+    return(FALSE)
+  }
+
+  if (commit != "HEAD") {
+    # If commit is anything other than head, it means that the content of the file is determined - hence we don't need to do anything.
+    return(TRUE)
+  }
+
+  # Finally we are at file.exists and commit==HEAD. If the input file is older than the output file, we don't need to redo the step.
+  changeDateIn <- as.numeric(system(paste0("stat -c %Z ", fileIn), intern = TRUE))
+  changeDateOut <- as.numeric(system(paste0("stat -c %Z ", fileOut), intern = TRUE))
+  changeDateIn <= changeDateOut
 }
 
 
