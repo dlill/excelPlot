@@ -4,6 +4,8 @@ Title: Export pdf or png Files Into Excel
 Version: 0.1.0
 Authors@R: 
     person("Daniel", "Lill", , "dlill.unifreiburg@gmail.com", role = c("cre"))
+Maintainer: 
+    Daniel Lill <dlill.unifreiburg@gmail.com>
 Description: Arrange plots from pdf or png files into an Excel file. 
     Allows for getting specific versions of the plots from git, extracting pages
     from a multipage pdf and cropping with a simple markup syntax.
