@@ -131,9 +131,9 @@ populateExcel <- function(dParsed, dwidths, dheights, FLAGaddBorders) {
 #' filename <- "~/.excelPlot/example.xlsx"
 #' plotExcel(d, filename = filename, headerRowStyle = "center",
 #'   FLAGaddBorders = FALSE, FLAGpdf = FALSE, textColWidth = 5)
-#' # Export to pdf
-#' plotExcel(d, filename = filename, headerRowStyle = "center",
-#'   FLAGaddBorders = FALSE, FLAGpdf = TRUE, textColWidth = 5)
+#' # Export to pdf and open in viewer - commented out for CRAN check, run manually
+#' # plotExcel(d, filename = filename, headerRowStyle = "center",
+#' #   FLAGaddBorders = FALSE, FLAGpdf = TRUE, textColWidth = 5)
 #' # After inspection, remove the file
 #' unlink(filename)
 #' }
