@@ -8,6 +8,14 @@
 \description{
 Arrange plots from pdf or png files into an Excel file. Allows for getting specific versions of the plots from git, extracting pages from a multipage pdf and cropping with a simple markup syntax. Text cells can be formatted using pre-specified styles using a simple markup syntax. To learn more, start with the example for `excelPlot()`.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/dlill/plotExcel}
+  \item Report bugs at \url{https://github.com/dlill/plotExcel/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Daniel Lill \email{dlill.unifreiburg@gmail.com}
 
