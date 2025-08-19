@@ -1,3 +1,7 @@
+# -------------------------------------------------------------------------#
+# PNG Pipeline ----
+# -------------------------------------------------------------------------#
+
 
 #' Apply the plot preprocessing pipeline
 #'
@@ -141,8 +145,39 @@ pngPipelineCrop <- function(plotSpec) {
 
 }
 
+#' Check if anything needs to be done on a plot file
+#'
+#' @param fileIn Input file of the function where this function is called.
+#' @param fileOut Output file of the function where this function is called.
+#' @param commit Commit hash
+#'
+#' @return TRUE: A sound input output relationship is guaranteed even if we don't redo the step
+#' @md
+idempotencyNoActionRequired <- function(fileIn, fileOut, commit) {
+
+  if (!file.exists(fileOut)) {
+    # Trivial case: File does not exist, we need to execute
+    return(FALSE)
+  }
+
+  if (commit != "HEAD") {
+    # If commit is anything other than head, it means that the content of the file is determined - hence we don't need to do anything.
+    return(TRUE)
+  }
+
+  # Finally we are at file.exists and commit==HEAD. If the input file is older than the output file, we don't need to redo the step.
+  changeDateIn <- file.info(fileIn)["ctime"]
+  changeDateOut <- file.info(fileOut)["ctime"]
+  changeDateIn <= changeDateOut
+}
 
 
+
+
+
+# -------------------------------------------------------------------------#
+# PlotSpec ----
+# -------------------------------------------------------------------------#
 
 #' Collect all options for plot preprocessing in a list
 #'
@@ -231,31 +266,6 @@ parsePlotSpec <- function(text) {
   plotSpec
 }
 
-#' Check if anything needs to be done on a plot file
-#'
-#' @param fileIn Input file of the function where this function is called.
-#' @param fileOut Output file of the function where this function is called.
-#' @param commit Commit hash
-#'
-#' @return TRUE: A sound input output relationship is guaranteed even if we don't redo the step
-#' @md
-idempotencyNoActionRequired <- function(fileIn, fileOut, commit) {
-
-  if (!file.exists(fileOut)) {
-    # Trivial case: File does not exist, we need to execute
-    return(FALSE)
-  }
-
-  if (commit != "HEAD") {
-    # If commit is anything other than head, it means that the content of the file is determined - hence we don't need to do anything.
-    return(TRUE)
-  }
-
-  # Finally we are at file.exists and commit==HEAD. If the input file is older than the output file, we don't need to redo the step.
-  changeDateIn <- as.numeric(system(paste0("stat -c %Z ", fileIn), intern = TRUE))
-  changeDateOut <- as.numeric(system(paste0("stat -c %Z ", fileOut), intern = TRUE))
-  changeDateIn <= changeDateOut
-}
 
 
 
